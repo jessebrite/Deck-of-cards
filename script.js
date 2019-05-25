@@ -1,6 +1,5 @@
 // Code goes here
 
-
 let deckCards = ['Hearts', 'Clubs', 'Diamonds', 'Spade'];
 let value = [
       'Ace', 'King', 'Queen', 'Jack', 'Ten',
@@ -15,6 +14,7 @@ let textArea = document.getElementById('text-area'),
 let gameStarted = false,
     gameOver = false,
     playerWon = false,
+    tie = false,
     dealerCards = [],
     playerCards = [],
     dealerScore = 0,
@@ -29,6 +29,7 @@ newGame.addEventListener('click', function() {
   gameStarted = true;
   gameOver = false;
   playerWon = false;
+  tie = false;
   
   deck = createDeck();
   shuffleDeck(deck);
@@ -40,6 +41,18 @@ newGame.addEventListener('click', function() {
   stayButton.style.display = 'inline';
   showStatus();
   
+});
+
+hitButton.addEventListener('click', function() {
+  playerCards.push(getNextCard());
+  checkForEndOfGame();
+  showStatus();
+});
+
+stayButton.addEventListener('click' , function() {
+  gameOver = true;
+  checkForEndOfGame();
+  showStatus();
 });
 
 function getCardNumericValue(card) {
@@ -119,6 +132,41 @@ function updateScores() {
   playerScore = getScore(playerCards);
 }
 
+function checkForEndOfGame() {
+  updateScores();
+   
+  if (gameOver) {
+    // let deale take cards
+    while(dealerScore < playerScore
+        && playerScore <= 21 
+        && dealerScore <= 21) {
+      dealerCards.push(getNextCard());
+      updateScores();
+    }
+  }
+  
+  if (playerScore > 21) {
+    
+    playerWon = false;
+    gameOver = true;
+    
+  } else if (dealerScore > 21) {
+    
+    playerWon = true;
+    gameOver = true;
+    
+  } else if (gameOver) {
+    
+    if (playerScore > dealerScore) {
+      playerWon = true;
+    } else if (playerScore === dealerScore) {
+      tie = true;
+    } else {
+      playerWon = false;
+    } 
+  }
+}
+
 function showStatus() {
   if (!gameStarted) {
     textArea.innerText = 'Game Started...';
@@ -148,13 +196,13 @@ function showStatus() {
     
   if (gameOver) {
     if (playerWon) {
-      textArea.innerText = 'YOU WIN'; 
-    } else {
-      textArea.innerText = 'DEALER  WINS';
-    }
+      textArea.innerText += 'YOU WIN!'; 
+    } else if (tie) { 
+      textArea.innerText += 'IT\'S A TIE';
+    } else textArea.innerText += 'DEALER WINS';
+    
     newGame.style.display = 'inline';
     hitButton.style.display = 'none';
     stayButton.style.display = 'none';
   }
-  
 }
